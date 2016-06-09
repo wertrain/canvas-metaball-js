@@ -3,6 +3,7 @@ var canvasmetaball = {};
 (function () {
     var RADIUS = 64; // ボールの半径
     var MAX_PIXELS = (2 * RADIUS) * (2 * RADIUS); // 円を囲む四角形のピクセル数
+    var MAX_PALETTE = 256; // パレット数最大
     var Metaball = function(x, y, vx, vy) {
         this.x = x;
         this.y = y;
@@ -22,9 +23,9 @@ var canvasmetaball = {};
                     // 円内のピクセルの色（パレット番号）を決定している
                     z = Math.sqrt(z);
                     var t = z / RADIUS;
-                    no = Math.floor(256 * (t * t * t * t));
-                    if (no > 255)
-                        no = 255;
+                    no = Math.floor(MAX_PALETTE * (t * t * t * t));
+                    if (no > MAX_PALETTE - 1)
+                        no = MAX_PALETTE - 1;
                     if (no < 0)
                         no = 0;
                 }
@@ -37,7 +38,6 @@ var canvasmetaball = {};
         var palette = new Palette();
         
         for (let i = 0; i < MAX_PIXELS; ++i) {
-            
             let sx = this.x + this.pixels[i]['dx'];
             if (sx < 0 || sx > width)
                 continue;
@@ -48,8 +48,7 @@ var canvasmetaball = {};
             // ボールの色をイメージのRGBへ加算する
             let no = this.pixels[i]['no'];
             let color = palette.getColor(no); // パレット番号からRGBを取り出す
-            
-            //var p = context.createImageData(1, 1);
+
             let index = (sy * width * 4) + (sx * 4);
             p.data[index + 0] = p.data[index + 0] + color[0];
             p.data[index + 1] = p.data[index + 1] + color[1];
@@ -80,9 +79,15 @@ var canvasmetaball = {};
             this.vy = -this.vy;
         }
     };
+    Metaball.prototype.isHit = function(px, py) {
+        return ((this.x - px) * (this.x - px) + (this.y - py) * (this.y - py) <= RADIUS * RADIUS);
+    };
+    Metaball.prototype.turn = function() {
+        this.vx = -this.vx;
+        this.vy = -this.vy;
+    };
     canvasmetaball.Metaball = Metaball;
     
-    var MAX_PALETTE = 256;
     var Palette = function() {
         this.red = new Array(MAX_PALETTE);
         this.green = new Array(MAX_PALETTE);
@@ -93,11 +98,11 @@ var canvasmetaball = {};
             r = g = b = 0;
             // ここのr,g,bの順番を変えると違う色のメタボールができる
             if (i >= 0)
-                r = 4 * i;
-            if (i >= 2)
-                g = 4 * (i / 2);
+                r = 2 * i;
             if (i >= 4)
-                b = 4 * (i / 4);
+                g = 4 * (i / 4);
+            if (i >= 8)
+                b = 4 * (i / 8);
 
             if (r > 255)
                 r = 255;
@@ -122,9 +127,9 @@ var canvasmetaball = {};
 
 var main = function() {
     var metaballs = new Array(3);
-    metaballs[0] = new canvasmetaball.Metaball(150, 100,  2,  1);
-    metaballs[1] = new canvasmetaball.Metaball(100, 200, -1, -2);
-    metaballs[2] = new canvasmetaball.Metaball(150,  60,  3, -2);
+    metaballs[0] = new canvasmetaball.Metaball( 50, 100, -2,  2);
+    metaballs[1] = new canvasmetaball.Metaball(120, 200, -1, -2);
+    metaballs[2] = new canvasmetaball.Metaball(150,  60,  2, -1);
     
     var canvas = document.getElementById('canvas');
     canvas.width = 320;
@@ -139,4 +144,12 @@ var main = function() {
         }
         setTimeout(arguments.callee, 1000 / 60);
     })();
+    
+    canvas.addEventListener('click', function(e) {
+        for (let i = 0; i < metaballs.length; ++i) {
+            if (metaballs[i].isHit(e.clientX, e.clientY)) {
+                metaballs[i].turn();
+            }
+        }
+    }, false);
 }();
