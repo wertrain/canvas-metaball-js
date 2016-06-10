@@ -4,7 +4,7 @@
 
 ## Demo
 
-[http://wertrain.github.io/demo/webgl-dice/](http://wertrain.github.io/demo/canvas-metaball-js/)
+[http://wertrain.github.io/demo/canvas-metaball-js/](http://wertrain.github.io/demo/canvas-metaball-js/)
 
 ### based on
 
