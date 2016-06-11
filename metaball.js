@@ -127,9 +127,9 @@ var canvasmetaball = {};
 
 var main = function() {
     var metaballs = new Array(3);
-    metaballs[0] = new canvasmetaball.Metaball( 50, 100, -2,  2);
+    metaballs[0] = new canvasmetaball.Metaball( 50, 100, -1,  2);
     metaballs[1] = new canvasmetaball.Metaball(120, 200, -1, -2);
-    metaballs[2] = new canvasmetaball.Metaball(150,  60,  2, -1);
+    metaballs[2] = new canvasmetaball.Metaball(150,  60,  1, -1);
     
     var canvas = document.getElementById('canvas');
     canvas.width = 320;
